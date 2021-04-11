@@ -27,7 +27,7 @@ def reshapeAndAppend1s (faces):
     newShape = np.reshape(faces, (faces.shape[0]**2, faces.shape[2]))
     onesRow = np.ones(newShape.shape[1])
     newShape = np.vstack([newShape, onesRow])
-
+    print(newShape)
     return newShape
 
 # Given a vector of weights w, a design matrix Xtilde, and a vector of labels y, return the (unregularized)
