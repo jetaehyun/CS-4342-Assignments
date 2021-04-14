@@ -27,7 +27,7 @@ def reshapeAndAppend1s (faces):
     newShape = np.reshape(faces, (faces.shape[0]**2, faces.shape[2]))
     onesRow = np.ones(newShape.shape[1])
     newShape = np.vstack([newShape, onesRow])
-    print(newShape)
+
     return newShape
 
 # Given a vector of weights w, a design matrix Xtilde, and a vector of labels y, return the (unregularized)
@@ -105,7 +105,8 @@ def method3 (Xtilde, y):
 def gradientDescent (Xtilde, y, alpha = 0.):
     EPSILON = 3e-3  # Step size aka learning rate
     T = 5000  # Number of gradient descent iterations
-
+    print(Xtilde.shape)
+    print(y.shape)
     w = 0.01 * np.random.randn(Xtilde.shape[0])
     for i in range(T):
 
