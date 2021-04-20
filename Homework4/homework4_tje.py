@@ -41,7 +41,6 @@ class SVM4342 ():
         # print(x.shape)
         # print(self.w.shape)
         # print(self.b.shape)
-        rand_classification = [-1, 1]
         labels = x.dot(self.w) + self.b
         labels[labels > 0] = 1
         labels[labels < 0] = -1
