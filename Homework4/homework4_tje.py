@@ -42,9 +42,8 @@ class SVM4342 ():
         # print(self.w.shape)
         # print(self.b.shape)
         labels = x.dot(self.w) + self.b
-        labels[labels > 0] = 1
+        labels[labels >= 0] = 1
         labels[labels < 0] = -1
-        labels[labels == 0] = np.random.choice([-1, 1])
 
         return labels
 
