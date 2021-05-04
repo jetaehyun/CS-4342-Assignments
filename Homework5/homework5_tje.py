@@ -33,7 +33,7 @@ def kernelGrid(X):
 
     for i in range(X.shape[0]):
         x_it = X[i]
-        
+
         for j in range(X.shape[0]):
             x_prime = X[j]
 
@@ -45,20 +45,23 @@ def kernelGrid(X):
 
     return K
 
+
 def kernelPredict(X, feat_pairs):
     feat = np.zeros((1, 100))
-    
+
     for i in range(X.shape[0]):
         feat[0][i] = kerPoly3(feat_pairs, X[i])
 
     return feat
 
 
-def showPredictions (title, svm, X, svm_type=0):  # feel free to add other parameters if desired
+def showPredictions (title, svm, X, svm_type=0, Xtilde=None):  # feel free to add other parameters if desired
+
+    plot_data_with_label(X, svm.predict(Xtilde), name=title)
 
     x_neg, y_neg = [], []
     x_pos, y_pos = [], []
- 
+
     x_grid = np.linspace(X[:,0].min()-1, X[:,0].max()+1, 100)
     y_grid = np.linspace(X[:,1].min()-1, X[:,1].max()+1, 100)
     length = len(x_grid)
@@ -75,7 +78,7 @@ def showPredictions (title, svm, X, svm_type=0):  # feel free to add other param
                 point = trans10Dim(xp, yp)
             else:
                 point = kernelPredict(X, np.array([xp, yp]))
-            
+
 
             predi = svm.predict(point)
 
@@ -97,50 +100,59 @@ def showPredictions (title, svm, X, svm_type=0):  # feel free to add other param
     plt.title(title)
     plt.show()
 
+
+def plot_data_with_label(X, y, name=""):
+    idxsNeg = np.nonzero(y == -1)[0]
+    idxsPos = np.nonzero(y == 1)[0]
+    plt.scatter(X[idxsNeg, 0], X[idxsNeg, 1])
+    plt.scatter(X[idxsPos, 0], X[idxsPos, 1])
+    plt.xlabel("Radon")
+    plt.ylabel("Asbestos")
+    plt.legend([ "Lung disease", "No lung disease" ], loc='upper right')
+    plt.title(name)
+    plt.show()
+
+
 if __name__ == "__main__":
     # Load training data
     d = np.load("lung_toy.npy")
     X = d[:,0:2]  # features
     y = d[:,2]  # labels
-    idxsNeg = np.nonzero(y == -1)[0]
-    idxsPos = np.nonzero(y == 1)[0]
-    plt.scatter(X[idxsNeg, 0], X[idxsNeg, 1])
-    plt.scatter(X[idxsPos, 0], X[idxsPos, 1])
-    plt.show()
+    plot_data_with_label(X, y)
 
 
     # (a) Train linear SVM using sklearn
     svmLinear = sklearn.svm.SVC(kernel='linear', C=0.01)
     svmLinear.fit(X, y)
-    showPredictions("Linear", svmLinear, X)
+    showPredictions("Linear", svmLinear, X, Xtilde=X)
 
 
     # (b) Poly-3 using explicit transformation phiPoly3
     Xtilde = phiPoly3(X)
     svmPoly3_expl = sklearn.svm.SVC(kernel='linear', C=0.01)
     svmPoly3_expl.fit(Xtilde, y)
-    showPredictions("phiPoly3", svmPoly3_expl, X, 1)
-  
+    showPredictions("phiPoly3", svmPoly3_expl, X, 1, Xtilde)
+
 
     # (c) Poly-3 using kernel matrix constructed by kernel function kerPoly3
     K = kernelGrid(X)
     svmPoly3_ker = sklearn.svm.SVC(kernel='precomputed', C=0.01)
     svmPoly3_ker.fit(K, y)
-    showPredictions("kerPoly3", svmPoly3_ker, X, 3)
-  
+    showPredictions("kerPoly3", svmPoly3_ker, X, 3, K)
+
 
     # (d) Poly-3 using sklearn's built-in polynomial kernel
     svmPoly3_sk = sklearn.svm.SVC(kernel='poly', C=0.01, gamma=1, coef0=1, degree=3)
     svmPoly3_sk.fit(X, y)
-    showPredictions("Poly3_sk", svmPoly3_sk, X)
-  
+    showPredictions("Poly3_sk", svmPoly3_sk, X, Xtilde=X)
+
 
     # (e) RBF using sklearn's built-in polynomial kernel
-     
+
     svmPoly3_rbf_1 = sklearn.svm.SVC(kernel='rbf', C=1, gamma=0.1)
     svmPoly3_rbf_1.fit(X, y)
-    showPredictions("Poly3_rbf 0.1", svmPoly3_rbf_1, X)
+    showPredictions("Poly3_rbf 0.1", svmPoly3_rbf_1, X, Xtilde=X)
 
     svmPoly3_rbf_2 = sklearn.svm.SVC(kernel='rbf', C=1, gamma=0.03)
     svmPoly3_rbf_2.fit(X, y)
-    showPredictions("Poly3_rbf 0.03", svmPoly3_rbf_2, X)
+    showPredictions("Poly3_rbf 0.03", svmPoly3_rbf_2, X, Xtilde=X)
